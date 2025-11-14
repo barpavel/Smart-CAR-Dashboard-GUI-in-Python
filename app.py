@@ -4,6 +4,7 @@ __credits__ = ["Pavel Bar"]
 __version__ = "1.0.1"
 
 import io
+import os
 import sys
 import argparse
 from datetime import datetime
@@ -1182,6 +1183,15 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
+
+    # Configure QtWebEngine for robust operation in containerized environments.
+    # These Chromium flags reduce race conditions during OpenGL initialization
+    # without disabling GPU acceleration or affecting other Qt components.
+    os.environ.setdefault('QTWEBENGINE_CHROMIUM_FLAGS',
+        '--disable-gpu-sandbox '           # Reduces GPU sandbox initialization races (no perf impact)
+        '--no-zygote '                     # Simplifies process initialization (reduces race conditions)
+        '--disable-software-rasterizer'    # Prevents mid-initialization fallback during GL queries
+    )
 
     # Enable automatic high DPI scaling
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
